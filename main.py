@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gae_python37_app]
-from flask import Flask
+import datetime
 import logging
 
-import datetime
-from sklearn.cluster import KMeans
 import numpy as np
-from clustering import Clustering
+from flask import Flask
+from sklearn.cluster import KMeans
+
+from cluster import Cluster
+from transform import Transform
+from performance import Performance
 
 app = Flask(__name__)
 
@@ -33,16 +35,16 @@ app = Flask(__name__)
 
 #     return db
 
-@app.route('/test2')
-def test():
+@app.route('/api/compute/average/performance/<user_key>')
+def tescalculate_average_performancet(user_key: str):
 
-    return Clustering().test()
+    return Transform().calculate_average_performance(user_key)
 
 
-@app.route('/api/cluster/users')
+@app.route('/api/compute/cluster')
 def cluster_users() -> str:
 
-    return str(Clustering().cluster_users())
+    return str(Cluster().cluster_users())
 
 @app.errorhandler(500)
 def server_error(e):

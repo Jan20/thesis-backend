@@ -104,3 +104,7 @@ venv.bak/
 .mypy_cache/
 
 service_account.json
+/config/service_account.json
+config/service_account.json
+.config
+config/
