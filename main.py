@@ -19,9 +19,9 @@ import numpy as np
 from flask import Flask
 from sklearn.cluster import KMeans
 
-from cluster import Cluster
-from transform import Transform
-from performance import Performance
+from computations.cluster import Cluster
+from computations.transform import Transform
+from models.performance import Performance
 
 app = Flask(__name__)
 
@@ -55,8 +55,10 @@ def server_error(e):
     """.format(e), 500
 
 if __name__ == '__main__':
+    
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
     # can be configured by adding an `entrypoint` to app.yaml.
     app.run(host='127.0.0.1', port=8080, debug=False)
+
 # [END gae_python37_app]

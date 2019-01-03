@@ -1,6 +1,10 @@
 import sys
+import os
 
+SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 sys.path.append("..")
+
+import os
 
 # from google.cloud import firestore
 import firebase_admin
@@ -22,7 +26,8 @@ from models.performance import Performance
 ######################
 ## Test Environment ##
 ######################
-cred = credentials.Certificate('../config/service_account.json')
+cred = credentials.Certificate(os.path.join(SITE_ROOT, "../config", "service_account.json")
+)
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -209,3 +214,66 @@ class Database(object):
         #
         ref.set(performance.to_dict())
  
+    ############################
+    ## For test purposis only ##
+    ############################
+    def createUser(self) -> None:
+        print('Hello')
+#     // Fetches the highest existing user id and
+#     // increases the value by one. This should
+#     // ensure that a user id is not used twice
+#     // throughtout the experiment.
+#     const id: number = await this.getHighestUserId() + 1
+#     const key: string = new AnalyticsHelper().generateKey('user', id)
+
+#     // Constructs a key value for storing a new
+#     // user at firestore. The key should look
+#     // like 'user001'.
+#     const user: User = {id: id, key: key}
+
+#     // Creates a new entry at Firestore that 
+#     // corresponds to the newly created user key.
+#     await this.angularFirestore.doc(`users/${user.key}`).set(user)
+
+#     // Sets a key-value-pair for the newly created
+#     // user key at the user's localStorage.
+#     localStorage.setItem('user_key', user.key)
+
+#     // Returns a promise pointing to the just
+#     // created userKey.
+#     return new Promise<User>(resolve => resolve(user))
+
+#   }
+
+ 
+    def get_highest_user_id(self) -> int:
+    
+        # Sets a default user id.
+        highest_user_id: int = 0
+
+        # Iterates through all users from firestore and
+        # compares their user ids with the one stored in
+        # the highestUserId variable.
+        for user in db.collection('users').get():
+
+            print(user.to_dict())
+        # dict = ref.get().to_dict()
+
+        #     #
+        #     # Adds all document ids to the
+        #     # previously initialized array.
+        #     #
+        #     user_keys.append(doc.id)
+
+
+        # If the user's id is higher than
+        # the former highest user id, the
+        # value of the highestUserId variable 
+        # is is replaced by the one stored in
+        # the userId variable.
+#         user. > highest_user_id ? highest_user_id = user.data().id : null
+
+#     // Resolves promise by returning the highest user id
+#     // which should always be an number.
+#     return new Promise<number>(resolve => resolve(highest_user_id))
+

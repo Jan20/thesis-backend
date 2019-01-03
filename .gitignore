@@ -106,5 +106,6 @@ venv.bak/
 service_account.json
 /config/service_account.json
 config/service_account.json
+config/test_account.json
 .config
 config/
