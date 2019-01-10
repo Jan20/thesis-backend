@@ -1,6 +1,7 @@
+import os
 import sys
 
-sys.path.append("..")
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import numpy as np
 import pandas as pd
@@ -40,12 +41,8 @@ class Cluster(object):
         #
         average_performances = pd.DataFrame(self.database.get_average_performance(user_keys[0]).to_dict(), index=[user_keys[0]])
 
-        print(average_performances)
-        print(user_keys)
         user_key_of_first_user = user_keys[0]
         user_keys.remove(user_keys[0])
-
-        print(user_keys)
 
         #
         # Iterates over all user keys.
@@ -85,10 +82,6 @@ class Cluster(object):
         for i in range(number_of_clusters):
 
             cluster_ids.append(i)
-
-        print(kmeans.labels_)
-        print(kmeans.labels_[1])
-        print(kmeans.cluster_centers_)
 
         self.store_clusters(cluster_ids, kmeans.cluster_centers_)
 

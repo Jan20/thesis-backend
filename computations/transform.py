@@ -1,6 +1,7 @@
+import os
 import sys
 
-sys.path.append("..")
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import numpy as np
 import pandas as pd
@@ -21,7 +22,7 @@ class Transform(object):
     # particular user and stores the results in a
     # Firestore database.
     #
-    def calculate_average_performance(self, user_key: str) -> str:
+    def calculate_average_performance(self, user_key: str) -> Performance:
 
         #
         # Creates a new database object.
@@ -85,4 +86,4 @@ class Transform(object):
         #
         database.set_average_performance(user_key, average_performance)
 
-        return 'done'
+        return average_performance

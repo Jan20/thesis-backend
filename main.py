@@ -22,6 +22,7 @@ from sklearn.cluster import KMeans
 from computations.cluster import Cluster
 from computations.transform import Transform
 from models.performance import Performance
+from evolution.evolution import Evolution
 
 app = Flask(__name__)
 
@@ -45,6 +46,11 @@ def tescalculate_average_performancet(user_key: str):
 def cluster_users() -> str:
 
     return str(Cluster().cluster_users())
+
+@app.route('/api/evolve/level/<user_key>/<session_key>/<level_key>')
+def evolve_level(user_key: str, session_key: str, level_key: str) -> str:
+
+    return Evolution(level_key, user_key, session_key).load_level()
 
 @app.errorhandler(500)
 def server_error(e):

@@ -1,12 +1,14 @@
+import os
 import sys
+import unittest
 
-sys.path.append("..")
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from computations.cluster import Cluster
 from database.database import Database
 
 
-class ClusterTest(object):
+class Test_Cluster(object):
 
     def compute_average_user_performance(self):
 
@@ -15,6 +17,6 @@ class ClusterTest(object):
 
 if __name__ == "__main__":
 
-    ClusterTest().compute_average_user_performance()
+    Test_Cluster().compute_average_user_performance()
     
     print("Everything passed")

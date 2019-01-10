@@ -1,16 +1,18 @@
-import sys
 import os
+import sys
 
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-sys.path.append("..")
-
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import os
 
 # from google.cloud import firestore
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+from models.user import User
+from models.session import Session
 from models.performance import Performance
+from models.level import Level
 
 
 ############################
@@ -26,8 +28,7 @@ from models.performance import Performance
 ######################
 ## Test Environment ##
 ######################
-cred = credentials.Certificate(os.path.join(SITE_ROOT, "../config", "service_account.json")
-)
+cred = credentials.Certificate(os.path.join(SITE_ROOT, "../config", "test_account.json"))
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -68,6 +69,53 @@ class Database(object):
         # Returns all user keys.
         #
         return user_keys
+
+    def delete_users(self) -> None:
+
+        user_keys: [str] = self.get_user_keys()
+
+        for user_key in user_keys:
+            self.delete_user(user_key)
+
+    def get_user(self, user_key: str) -> User:
+
+        ref = db.document('users/' + user_key)
+
+        user: User = User.from_dict(ref.get().to_dict())
+
+        return user
+
+    #
+    #
+    #
+    def store_user(self, user: User) -> None:
+
+        ref = db.document('users/' + user.user_key)
+
+        ref.set(user.to_dict())
+
+    #
+    #
+    #
+    def delete_user(self, user_key: str) -> None:
+
+        ref = db.document('users/' + user_key)
+
+        ref.delete()
+
+    def store_session(self, user_key: str, session: Session) -> None:
+
+        ref = db.document('users/' + user_key + '/sessions/' + session.session_key)
+
+        ref.set({
+
+            'id': session.session_id
+
+        })
+
+        ref = db.document('users/' + user_key + '/sessions/' + session.session_key + '/data/performance')
+
+        ref.set(session.performance.to_dict())
 
     #
     # Returns all session keys that are
@@ -214,38 +262,6 @@ class Database(object):
         #
         ref.set(performance.to_dict())
  
-    ############################
-    ## For test purposis only ##
-    ############################
-    def createUser(self) -> None:
-        print('Hello')
-#     // Fetches the highest existing user id and
-#     // increases the value by one. This should
-#     // ensure that a user id is not used twice
-#     // throughtout the experiment.
-#     const id: number = await this.getHighestUserId() + 1
-#     const key: string = new AnalyticsHelper().generateKey('user', id)
-
-#     // Constructs a key value for storing a new
-#     // user at firestore. The key should look
-#     // like 'user001'.
-#     const user: User = {id: id, key: key}
-
-#     // Creates a new entry at Firestore that 
-#     // corresponds to the newly created user key.
-#     await this.angularFirestore.doc(`users/${user.key}`).set(user)
-
-#     // Sets a key-value-pair for the newly created
-#     // user key at the user's localStorage.
-#     localStorage.setItem('user_key', user.key)
-
-#     // Returns a promise pointing to the just
-#     // created userKey.
-#     return new Promise<User>(resolve => resolve(user))
-
-#   }
-
- 
     def get_highest_user_id(self) -> int:
     
         # Sets a default user id.
@@ -277,3 +293,62 @@ class Database(object):
 #     // which should always be an number.
 #     return new Promise<number>(resolve => resolve(highest_user_id))
 
+
+    ###########
+    ## Level ##
+    ###########
+    def get_generic_level(self, level_key: str) -> Level:
+        
+        ref = db.document('levels/' + level_key)
+
+        #
+        # Stores all datapoints stored at the document
+        # to a dictionary.
+        #
+        dict = ref.get().to_dict()
+
+        #
+        # Returns a Performance object created from the
+        # values stored in the dictionary.
+        #
+        return Level.from_dict(dict)
+
+    #
+    #
+    #
+    #
+    def get_level(self, user_key: str, session_key: str, level_key: str) -> Level:
+
+        ref = db.document('users/' + user_key + '/sessions/' + session_key + '/data/level')
+
+        dictionary: dict = ref.get().to_dict()
+
+        return Level.from_dict(dictionary)
+
+    #
+    #
+    #
+    #
+    def store_level(self, user_key: str, session_key: str, level: Level) -> None:
+
+        #
+        #
+        #
+        ref = db.document('users/' + user_key + '/sessions/' + session_key + '/data/level')
+
+        #
+        #
+        #
+        ref.set(level.to_dict())
+
+    def delete_level(self, user_key: str, session_key: str, level: Level) -> None:
+
+        #
+        #
+        #
+        ref = db.document('users/' + user_key + '/sessions/' + session_key + '/data/level')
+
+        #
+        #
+        #
+        ref.delete()
