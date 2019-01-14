@@ -16,13 +16,14 @@ class Cluster(object):
     ###############
     ## Functions ##
     ############### 
-    def __init__(self):
+    def __init__(self, number_of_clusters: int):
         
         #
         # Creates a database object that
         # is used across all functions.
         #
         self.database = Database()
+        self.number_of_clusters = number_of_clusters
 
     #
     # Performs the clustering of users according
@@ -35,12 +36,18 @@ class Cluster(object):
         #
         user_keys: [str] = self.database.get_user_keys()
 
+        if user_keys == []:
+
+            return 'No Users Found'
+
         #
-        # Initializes an empty array intended
-        # to store 
+        #
         #
         average_performances = pd.DataFrame(self.database.get_average_performance(user_keys[0]).to_dict(), index=[user_keys[0]])
 
+        #
+        #
+        #
         user_key_of_first_user = user_keys[0]
         user_keys.remove(user_keys[0])
 
@@ -73,7 +80,7 @@ class Cluster(object):
         #
         user_keys = [user_key_of_first_user] + user_keys
 
-        number_of_clusters: int = 2
+        number_of_clusters: int = self.number_of_clusters
 
         kmeans = KMeans(n_clusters=number_of_clusters, random_state=0).fit(average_performances)
 
@@ -90,6 +97,9 @@ class Cluster(object):
         return str(kmeans.cluster_centers_)
 
 
+    #
+    #
+    #
     def store_clusters(self, cluster_ids: [int], centroids):
 
         for index, cluster_id in enumerate(cluster_ids):
@@ -107,3 +117,8 @@ class Cluster(object):
             self.database.store_cluster_membership(user_keys[index], int(cluster_labels[index]))
 
     
+if __name__ == "__main__":
+    
+    cluster: Cluster = Cluster(1)
+
+    cluster.cluster_users()

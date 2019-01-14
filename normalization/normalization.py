@@ -10,12 +10,25 @@ from sklearn.cluster import KMeans
 from database.database import Database
 from models.performance import Performance
 
-class Transform(object):
+class Normalization(object):
+
+    def __init__(self):
+
+        #
+        # Creates a new database object.
+        #
+        self.database: Database = Database()
+
 
     ###############
     ## Functions ##
     ###############
-    
+    def normalize_performance(self, user_key: str, session_key: str) -> None:
+
+        performance: Performance = self.database.get_performance(user_key, session_key)
+
+        
+
     # 
     # Calculates the average gameplay performance
     # over all previously played sessions for a
@@ -24,16 +37,11 @@ class Transform(object):
     #
     def calculate_average_performance(self, user_key: str) -> Performance:
 
-        #
-        # Creates a new database object.
-        #
-        database: Database = Database()
-
         # 
         # Retrieves all session keys relating to
         # game sessions played by an user.
         #
-        session_keys: [str] = database.get_session_keys(user_key)
+        session_keys: [str] = self.database.get_session_keys(user_key)
 
         #
         # Sets up a range of empty arrays
@@ -55,7 +63,7 @@ class Transform(object):
             # Stores all gameplay related data from a 
             # given user and session in a temporary variable.
             #
-            performance: Performance = database.get_performance(user_key, session_key)
+            performance: Performance = self.database.get_performance(user_key, session_key)
             
             #
             # Appends the recently retrieved gameplay related
@@ -84,6 +92,6 @@ class Transform(object):
         # The result is then
         # written into a Firestore database.   
         #
-        database.set_average_performance(user_key, average_performance)
+        self.database.set_average_performance(user_key, average_performance)
 
         return average_performance

@@ -1,13 +1,13 @@
-import os
-import sys
+import os, sys
 
-SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import os
-
-# from google.cloud import firestore
 import firebase_admin
 from firebase_admin import credentials, firestore
+SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+cred = credentials.Certificate(os.path.join(SITE_ROOT, "../config", "test_account.json"))
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from models.user import User
 from models.session import Session
@@ -15,30 +15,15 @@ from models.performance import Performance
 from models.level import Level
 
 
-############################
-## Production Environment ##
-############################
-# cred = credentials.ApplicationDefault()
-# firebase_admin.initialize_app(cred, {
-#   'projectId': 'thesis-002',
-# })
-
-# db = firestore.client()
-
-######################
-## Test Environment ##
-######################
-cred = credentials.Certificate(os.path.join(SITE_ROOT, "../config", "test_account.json"))
-firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
 #
 # Manages the the read and write operations
 # to a firestore database.
 #
 class Database(object):
 
+    ############################
+    ## User Related Functions ##
+    ############################
     #
     # Returns the key values under which
     # users are identified at Firestore.
@@ -70,12 +55,7 @@ class Database(object):
         #
         return user_keys
 
-    def delete_users(self) -> None:
-
-        user_keys: [str] = self.get_user_keys()
-
-        for user_key in user_keys:
-            self.delete_user(user_key)
+    
 
     def get_user(self, user_key: str) -> User:
 
@@ -97,19 +77,54 @@ class Database(object):
     #
     #
     #
+    def delete_users(self) -> None:
+    
+        user_keys: [str] = self.get_user_keys()
+
+        for user_key in user_keys:
+
+            self.delete_user(user_key)
+
+    #
+    #
+    #
     def delete_user(self, user_key: str) -> None:
 
         ref = db.document('users/' + user_key)
 
         ref.delete()
 
+    ###############################
+    ## Session Related Functions ##
+    ###############################
+    #
+    #
+    #
+    def get_session(self, user_key: str, session_key: str) -> Session:
+
+        ref = db.document('users/' + user_key + '/sessions/' + session_key)
+
+        session_dict = ref.get().to_dict()
+
+        ref = db.document('users/' + user_key + '/sessions/' + session_key + '/data/performance')
+
+        session_dict.update(ref.get().to_dict())
+
+        session: Session = Session.from_dict(session_dict)
+
+        return session
+
+    #
+    #
+    #
     def store_session(self, user_key: str, session: Session) -> None:
 
         ref = db.document('users/' + user_key + '/sessions/' + session.session_key)
 
         ref.set({
 
-            'id': session.session_id
+            'session_key': session.session_key,
+            'session_id': session.session_id
 
         })
 
@@ -213,6 +228,9 @@ class Database(object):
         #
         return Performance.from_dict(dict)
     
+    ###############################
+    ## Cluster Related Functions ##
+    ###############################
     #
     # Stores a reference to the cluster at which a user
     # belongs to at Firestore. 
@@ -262,41 +280,12 @@ class Database(object):
         #
         ref.set(performance.to_dict())
  
-    def get_highest_user_id(self) -> int:
-    
-        # Sets a default user id.
-        highest_user_id: int = 0
-
-        # Iterates through all users from firestore and
-        # compares their user ids with the one stored in
-        # the highestUserId variable.
-        for user in db.collection('users').get():
-
-            print(user.to_dict())
-        # dict = ref.get().to_dict()
-
-        #     #
-        #     # Adds all document ids to the
-        #     # previously initialized array.
-        #     #
-        #     user_keys.append(doc.id)
-
-
-        # If the user's id is higher than
-        # the former highest user id, the
-        # value of the highestUserId variable 
-        # is is replaced by the one stored in
-        # the userId variable.
-#         user. > highest_user_id ? highest_user_id = user.data().id : null
-
-#     // Resolves promise by returning the highest user id
-#     // which should always be an number.
-#     return new Promise<number>(resolve => resolve(highest_user_id))
-
-
     ###########
     ## Level ##
     ###########
+    #
+    #
+    #
     def get_generic_level(self, level_key: str) -> Level:
         
         ref = db.document('levels/' + level_key)
@@ -352,3 +341,30 @@ class Database(object):
         #
         #
         ref.delete()
+
+    def get_random_level(self) -> None:
+
+        #
+        # String array intended to by filled
+        # which session keys following a scheme
+        # like 'session_006' or 'session_134'.
+        #
+        level_keys: [str] = []
+
+        #
+        # Iterates over all entries of the
+        # 'sessions' collection of the given
+        # user document.
+        #
+        for doc in db.collection('levels').get():
+    
+            #
+            # Adds all document ids to the
+            # previously initialized array.
+            #
+            level_keys.append(doc.id)
+
+        #
+        # Returns all session keys.
+        #
+        return level_keys

@@ -37,6 +37,8 @@ class Evolution(object):
         level.representation[1][3] = 'C'
         level.representation[1][4] = 'C'
         level.representation[1][5] = 'C'
+        level.representation[1][6] = 'C'
+        level.representation[1][7] = 'C'
 
         return level
 

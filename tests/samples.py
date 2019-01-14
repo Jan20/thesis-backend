@@ -3,7 +3,6 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from computations.transform import Transform
 from database.database import Database
 from models.user import User
 from models.level import Level

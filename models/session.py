@@ -29,10 +29,10 @@ class Session(object):
             session_id = source['session_id'],
             performance = Performance(
                 
-                source['performance']['defeated_by_gaps'],
-                source['performance']['defeated_by_opponent_type_1'],
-                source['performance']['defeated_by_opponent_type_2'],
-                source['performance']['defeated_by_opponent_type_3']
+                source['defeated_by_gaps'],
+                source['defeated_by_opponent_type_1'],
+                source['defeated_by_opponent_type_2'],
+                source['defeated_by_opponent_type_3']
                 
             )
         )
@@ -45,13 +45,17 @@ class Session(object):
 
             'session_key': self.session_key,
             'session_id': self.session_id,
-            'performance': {
+            'data': {
+                
+                'performance': {
             
                 'defeated_by_gaps': self.performance.defeated_by_gaps,
                 'defeated_by_opponent_type_1': self.performance.defeated_by_opponent_type_1,
                 'defeated_by_opponent_type_2': self.performance.defeated_by_opponent_type_2,
                 'defeated_by_opponent_type_3': self.performance.defeated_by_opponent_type_3,
 
+                }
+            
             }
             
         }

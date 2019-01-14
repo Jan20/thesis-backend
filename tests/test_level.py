@@ -5,7 +5,7 @@ import unittest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from database.database import Database
-from computations.transform import Transform
+from normalization.normalization import Normalization
 
 
 class Test_Transform(unittest.TestCase):
@@ -19,7 +19,7 @@ class Test_Transform(unittest.TestCase):
         #
         # 
         #
-        result: dict = Transform().calculate_average_performance('user_001').to_dict()
+        result: dict = Normalization().calculate_average_performance('user_001').to_dict()
 
         #
         # Expected Result
