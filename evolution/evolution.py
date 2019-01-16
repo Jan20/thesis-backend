@@ -7,31 +7,53 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from database.database import Database
 from models.level import Level
+from models.user import User
+from database.database import Database
+from models.level import Level
 
+#
+#
+#
 class Evolution(object):
 
     ##################
     ## Constructors ##
     ##################
-    def __init__(self, user_key: str, session_key: str, level_key: str):
 
-        self.user_key: str = user_key
-        self.session_key: str = session_key
-        self.level_key: str = level_key
-        self.database: Database = Database()
+    ###############
+    ## Functions ##
+    ###############    
+    def execute(self, user_key: str) -> str:
 
-    def execute(self):
-
+        #
+        #
+        #
         database: Database = Database()
 
-        level: Level = database.get_generic_level(self.level_key)
+        #
+        #
+        #
+        random_level: Level = database.get_random_level('')
 
-        evolved_level: Level = self.evolve(level)
+        #
+        #
+        #
+        evolved_level: Level = self.evolve(random_level)
 
-        database.store_level(self.user_key, self.session_key, level)
+        #
+        #
+        #
+        session_key: str = database.generate_session(user_key, evolved_level)
+        
+        #
+        #
+        #
+        return session_key
 
 
     def evolve(self, level: Level) -> Level:
+
+        print(level.representation)
 
         level.representation[1][2] = 'C'
         level.representation[1][3] = 'C'
@@ -42,9 +64,6 @@ class Evolution(object):
 
         return level
 
-    def store_level(self, level: Level):
-
-        Database().store_level(self.user_key, self.session_key, level)
 
 #     #
 #     #

@@ -1,22 +1,39 @@
-import os
-import sys
-import json
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from models.user import User
-from evolution.evolution import Evolution
-
 def evolution_cloud_function(request):
+    
+    import os
+    import sys
+    import json
 
-    user_key: str = request.args.get('user_key')
-    session_key: str = request.args.get('session_key')
-    level_key: str = request.args.get('level_key')
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-    evolution: Evolution = Evolution('user_042', 'session_042', 'level_01')
+    from models.user import User
+    from evolution.evolution import Evolution
+    from models.level import Level
 
-    evolution.execute()
+    request_json = request.get_json(silent=True)
+    request_args = request.args
+
+    user_key: str
+
+    if request_json and 'user_key' in request_json:
+        user_key = request_json['user_key']
+    elif request_args and 'user_key' in request_args:
+        user_key = request_args['user_key']
+    else:
+        user_key = 'User not found.'
+
+    #
+    #
+    #
+    session_key: str = Evolution().execute(user_key)
+
+    #
+    #
+    #
+    return f'Session {user_key} has been created.'
 
 
-
+# if __name__ == "__main__":
+    
+#     evolution_cloud_function()
 

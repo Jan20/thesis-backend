@@ -22,7 +22,12 @@ class Samples:
 
     )
 
-    sample_session: Session = Session(session_key='session_042', session_id=42, performance=sample_performance)
+    sample_session: Session = Session(
+        
+        session_key='session_042', 
+        session_id=42, 
+        status='done',
+        performance=sample_performance)
 
     sample_level: Level = Level.from_dict(
 

@@ -9,11 +9,13 @@ db = firestore.client()
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from helper.helper import Helper
 from models.user import User
 from models.session import Session
 from models.performance import Performance
 from models.level import Level
 
+import random
 
 #
 # Manages the the read and write operations
@@ -90,47 +92,132 @@ class Database(object):
     #
     def delete_user(self, user_key: str) -> None:
 
+        #
+        #
+        #
         ref = db.document('users/' + user_key)
 
+        #
+        #
+        #
         ref.delete()
 
     ###############################
     ## Session Related Functions ##
     ###############################
     #
-    #
+    # Retrieves a single session from Firestore.
     #
     def get_session(self, user_key: str, session_key: str) -> Session:
 
-        ref = db.document('users/' + user_key + '/sessions/' + session_key)
+        #
+        # Sets up a document reference to a specified session.
+        #
+        ref = db.document(f'users/{user_key}/sessions/{session_key}')
 
-        session_dict = ref.get().to_dict()
+        #
+        # Converts the entries stored within the referenced document
+        # into a dictionary.
+        #
+        session_dict: dict = ref.get().to_dict()
 
-        ref = db.document('users/' + user_key + '/sessions/' + session_key + '/data/performance')
+        #
+        # Builds up a reference to the performance document of a
+        # specified session.
+        #
+        ref = db.document(f'users/{user_key}/sessions/{session_key}/data/performance')
 
+        #
+        # Adds the performance entries to the session dictionary, 
+        # enabling the convertion from a dictionary to a Session
+        # object. 
+        #
         session_dict.update(ref.get().to_dict())
 
+        #
+        # Creates a session which is based on the entries within the
+        # previously updated dictionary.
+        #
         session: Session = Session.from_dict(session_dict)
 
+        #
+        # Return the newly created session.
+        #
         return session
 
     #
-    #
+    # Stores a new session to Firestore.
     #
     def store_session(self, user_key: str, session: Session) -> None:
 
-        ref = db.document('users/' + user_key + '/sessions/' + session.session_key)
+        #
+        # Creates a reference to a new session document.
+        #
+        ref = db.document(f'users/{user_key}/sessions/{session.session_key}')
 
+        #
+        # Sets all general entries to the previously referred document
+        #
         ref.set({
 
-            'session_key': session.session_key,
-            'session_id': session.session_id
+            'key': session.session_key,
+            'id': session.session_id,
+            'status': session.status
 
         })
 
-        ref = db.document('users/' + user_key + '/sessions/' + session.session_key + '/data/performance')
+        #
+        # Creates a reference to the peformance document of the newly created session.
+        #
+        ref = db.document(f'users/{user_key}/sessions/{session.session_key}/data/performance')
 
+        #
+        # Stores the performance attributes within in the previously referred document.
+        #
         ref.set(session.performance.to_dict())
+
+    #
+    # 
+    #
+    def generate_session(self, user_key: str, level: Level) -> str:
+
+        session_id: int = 0
+
+        #
+        #
+        #
+        session_ids: [int] = self.get_session_ids(user_key)
+
+        #
+        # If there are not sessions yet stored for a given user.
+        #
+        if len(session_ids) > 0:
+
+            #
+            #
+            #
+            session_id: int = max(session_ids) + 1
+            
+        #
+        #
+        #
+        session_key: str = Helper().generate_key('session', session_id)
+        
+        ref = db.document(f'users/{user_key}/sessions/{session_key}')
+
+        ref.set({
+
+            'key': session_key,
+            'id': session_id,
+            'status': 'created'
+
+        })
+
+        ref = db.document(f'users/{user_key}/sessions/{session_key}/data/level')
+
+        ref.set(level.to_dict())
+
+        return session_key
 
     #
     # Returns all session keys that are
@@ -150,7 +237,7 @@ class Database(object):
         # 'sessions' collection of the given
         # user document.
         #
-        for doc in db.collection('users/' + user_key + '/sessions').get():
+        for doc in db.collection(f'users/{user_key}/sessions').get():
     
             #
             # Adds all document ids to the
@@ -163,6 +250,41 @@ class Database(object):
         #
         return session_keys
 
+    #
+    # Retrieves the ids of all sessions related 
+    # to a user.
+    #
+    def get_session_ids(self, user_key: str) -> [int]:
+
+        #
+        # String array intended to by filled
+        # which session ids.
+        #
+        session_ids: [int] = []
+
+        #
+        # Iterates over all entries of the
+        # 'sessions' collection of the given
+        # user document.
+        #
+        for doc in db.collection(f'users/{user_key}/sessions').get():
+         
+            #
+            # Stores all datapoints stored at the document
+            # to a dictionary.
+            #
+            session_dict: dict = doc.to_dict()
+
+            #
+            # Retrieves the session id from the previously
+            # created session dictionary.
+            #
+            session_ids.append(session_dict['id'])
+
+        #
+        # Returns all session ids.
+        #
+        return session_ids
     #
     # Returns the gameplay data of a specific
     # session for a given user.
@@ -296,6 +418,9 @@ class Database(object):
         #
         dict = ref.get().to_dict()
 
+        print('________________________________________________________________________________________')
+        print(dict)
+
         #
         # Returns a Performance object created from the
         # values stored in the dictionary.
@@ -330,6 +455,23 @@ class Database(object):
         #
         ref.set(level.to_dict())
 
+    #
+    #
+    #
+    #
+    def initialize_level(self, level: Level) -> None:
+
+        #
+        #
+        #
+        ref = db.document(f'levels/{level.key}')
+
+        #
+        #
+        #
+        ref.set(level.to_dict())
+
+
     def delete_level(self, user_key: str, session_key: str, level: Level) -> None:
 
         #
@@ -342,7 +484,25 @@ class Database(object):
         #
         ref.delete()
 
-    def get_random_level(self) -> None:
+
+    def delete_initial_level(self, level_key: str) -> None:
+
+        #
+        #
+        #
+        ref = db.document(f'levels/{level_key}')
+
+        #
+        #
+        #
+        ref.delete()
+
+    def get_random_level(self, seed: str) -> Level:
+
+        #
+        # For test purposis only.
+        #
+        if (seed is 'level_01'): return self.get_generic_level('level_01')
 
         #
         # String array intended to by filled
@@ -365,6 +525,16 @@ class Database(object):
             level_keys.append(doc.id)
 
         #
+        #
+        #
+        level_key: str = random.choice(level_keys)
+
+        #
+        #
+        #
+        level: Level = self.get_generic_level(level_key)
+
+        #
         # Returns all session keys.
         #
-        return level_keys
+        return level

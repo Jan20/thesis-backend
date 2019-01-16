@@ -95,7 +95,29 @@ class Test_Database(unittest.TestCase):
 
         self.assertEqual(level.to_dict(), Samples.sample_level.to_dict())
 
-        
+    def test_set_average_performance(self):
+
+        database: Database = Database()
+        database.store_user(Samples.sample_user)
+        database.store_session(Samples.sample_user.user_key, Samples.sample_session)
+
+        database.set_average_performance('user_042', Samples.sample_performance)
+
+        result: Performance = database.get_average_performance('user_042')
+        expected_result: Performance = Samples.sample_performance
+
+        self.assertEqual(result.to_dict(), Samples.sample_performance.to_dict())
+
+    def test_get_session_ids(self):
+
+        database: Database = Database()
+        database.store_user(Samples.sample_user)
+        database.store_session(Samples.sample_user.user_key, Samples.sample_session)
+
+        result: [int] = database.get_session_ids(Samples.sample_user.user_key)
+
+        self.assertEqual(result, [42])
+
 
 if __name__ == '__main__':
     

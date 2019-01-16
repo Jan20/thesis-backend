@@ -11,10 +11,11 @@ class Session(object):
     ##################
     ## Constructors ##
     ##################
-    def __init__(self, session_key: str, session_id: int, performance: Performance):
+    def __init__(self, session_key: str, session_id: int, status: str, performance: Performance):
       
         self.session_key: str = session_key
         self.session_id: int = session_id
+        self.status: str = status
         self.performance: Performance = performance
       
     ###############
@@ -25,8 +26,9 @@ class Session(object):
         
         session = Session(
             
-            session_key = source['session_key'],
-            session_id = source['session_id'],
+            session_key = source['key'],
+            session_id = source['id'],
+            status = source['status'],
             performance = Performance(
                 
                 source['defeated_by_gaps'],
@@ -43,8 +45,9 @@ class Session(object):
 
         dictionary: dict = {
 
-            'session_key': self.session_key,
-            'session_id': self.session_id,
+            'key': self.session_key,
+            'id': self.session_id,
+            'status': self.status,
             'data': {
                 
                 'performance': {

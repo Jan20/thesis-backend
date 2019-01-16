@@ -43,6 +43,9 @@ class Normalization(object):
         #
         session_keys: [str] = self.database.get_session_keys(user_key)
 
+        if session_keys == []:
+
+            return Performance(0.0, 0.0, 0.0, 0.0)
         #
         # Sets up a range of empty arrays
         # intended to store all gameplay related
