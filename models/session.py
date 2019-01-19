@@ -52,10 +52,10 @@ class Session(object):
                 
                 'performance': {
             
-                'defeated_by_gaps': self.performance.defeated_by_gaps,
-                'defeated_by_opponent_type_1': self.performance.defeated_by_opponent_type_1,
-                'defeated_by_opponent_type_2': self.performance.defeated_by_opponent_type_2,
-                'defeated_by_opponent_type_3': self.performance.defeated_by_opponent_type_3,
+                    'defeated_by_gaps': self.performance.defeated_by_gaps,
+                    'defeated_by_opponent_type_1': self.performance.defeated_by_opponent_type_1,
+                    'defeated_by_opponent_type_2': self.performance.defeated_by_opponent_type_2,
+                    'defeated_by_opponent_type_3': self.performance.defeated_by_opponent_type_3,
 
                 }
             

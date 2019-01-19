@@ -38,6 +38,8 @@ class TextFileReader:
       line = line.replace('>', 'D') # Pipe to Brick
       line = line.replace('?', 'S') # Todo: Find better match
       line = line.replace('E', 'C') # Todo: Find better match Gumba to Bumba
+      line = line.replace('o', 'B') # Todo: Find better match Gumba to Bumba
+      line = line.replace('b', 'B') # Should result in opponnent type 3
       
       string_representation.append(line)
       

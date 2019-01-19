@@ -16,10 +16,15 @@ def evolution_cloud_function(request):
     user_key: str
 
     if request_json and 'user_key' in request_json:
+    
         user_key = request_json['user_key']
+    
     elif request_args and 'user_key' in request_args:
+    
         user_key = request_args['user_key']
+    
     else:
+    
         user_key = 'User not found.'
 
     #
@@ -30,7 +35,7 @@ def evolution_cloud_function(request):
     #
     #
     #
-    return f'Session {user_key} has been created.'
+    return f'Session {session_key} has been created.'
 
 
 # if __name__ == "__main__":

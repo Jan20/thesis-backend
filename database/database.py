@@ -181,6 +181,9 @@ class Database(object):
     #
     def generate_session(self, user_key: str, level: Level) -> str:
 
+        #
+        #
+        #
         session_id: int = 0
 
         #
@@ -196,7 +199,7 @@ class Database(object):
             #
             #
             #
-            session_id: int = max(session_ids) + 1
+            session_id = max(session_ids) + 1
             
         #
         #
@@ -212,6 +215,12 @@ class Database(object):
             'status': 'created'
 
         })
+
+        performance: Performance = Performance(0, 0, 0, 0)
+        
+        ref = db.document(f'users/{user_key}/sessions/{session_key}/data/performance')
+
+        ref.set(performance.to_dict())
 
         ref = db.document(f'users/{user_key}/sessions/{session_key}/data/level')
 
