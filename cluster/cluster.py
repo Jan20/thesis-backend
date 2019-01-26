@@ -18,10 +18,8 @@ class Cluster(object):
     ############### 
     def __init__(self, number_of_clusters: int):
         
-        #
         # Creates a database object that
         # is used across all functions.
-        #
         self.database = Database()
         self.number_of_clusters = number_of_clusters
 
@@ -31,18 +29,20 @@ class Cluster(object):
     #
     def cluster_users(self) -> str:   
 
-        #
         # Retrieves all user keys from Firestore.
-        #
         user_keys: [str] = self.database.get_user_keys()
 
+        # If there are no users stored at Firestore, leave the function.
+        # That case should not occure in practise since at least the
+        # current user's performance should have been stored before this
+        # function is invoked.
         if user_keys == []:
 
+            # Return a small statement to inform the user
+            # that no users are yet stored at Firestore.
             return 'No Users Found'
 
-        #
-        #
-        #
+        # 
         average_performances = pd.DataFrame(self.database.get_average_performance(user_keys[0]).to_dict(), index=[user_keys[0]])
 
         #

@@ -2,6 +2,8 @@ import os
 import sys
 import random
 import string
+import random
+import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -10,159 +12,133 @@ from models.level import Level
 from models.user import User
 from database.database import Database
 from models.level import Level
+from normalization.normalization import Normalization
 
 #
 #
 #
 class Evolution(object):
-
-    ##################
-    ## Constructors ##
-    ##################
-
+    
     ###############
     ## Functions ##
-    ###############    
+    ###############
+
+    #
+    # Wraps up the generation of a new session for a
+    # given user.
+    #
     def execute(self, user_key: str) -> str:
 
-        #
-        #
-        #
+        # Creates a new database object.
         database: Database = Database()
 
-        #
-        #
-        #
+        # Selects a new level randomly.
         random_level: Level = database.get_random_level('')
 
-        #
-        #
-        #
-        evolved_level: Level = self.evolve(random_level)
+        # Difficulty score that should be reached.
+        difficulty: float = Normalization().calculate_user_score(user_key)
 
-        #
-        #
-        #
-        session_key: str = database.generate_session(user_key, evolved_level)
-        
-        #
-        #
-        #
+        # evolves the previously selected level.
+        evolved_level: Level = self.evolve(difficulty, random_level)
+
+        # Generates a new session and connects the evolved
+        # level to that session.
+        session_key: str = database.generate_session(user_key, evolved_level, difficulty)
+    
+        # Returns the key of the previously generated session.
         return session_key
 
+    #
+    #
+    #
+    def evolve(self, target_score: int, level: Level) -> Level:
 
-    def evolve(self, level: Level) -> Level:
+        # Creates an array storing a random distribution of values
+        # corresponding to the level's length. 
+        random_distribution: [float] = np.random.rand(len(level.representation[0]))
 
-        print(level.representation)
+        # Converts the two-dimentional level representation into
+        # a two-dimentional numpy array.
+        matrix = np.array(level.representation)
 
-        level.representation[1][2] = 'C'
-        level.representation[1][3] = 'C'
-        level.representation[1][4] = 'C'
-        level.representation[1][5] = 'C'
-        level.representation[1][6] = 'C'
-        level.representation[1][7] = 'C'
+        # Goes as long as the level's desired difficulty is not reached.
+        while target_score > 0:
+
+            # Selects a column
+            column, random_distribution = self.select_column(random_distribution)
+
+            row: int = self.select_row(matrix[:, column])
+
+            if row == 404: 
+
+                continue
+
+            level.representation[row][column] = 'C'
+
+            target_score -= 5
 
         return level
 
+    #
+    # Selects a column based on the highest value from an array
+    # filled with a selection of randomely chosen values.
+    #
+    def select_column(self, random_distribution: [float]) -> (int, [float]):
 
-#     #
-#     #
-#     #
-#     #
-#     #
-#     def execute(self, in_string: str, in_string_length: int, population: int, generations: int):
+        # Stores the position of the highest random value
+        # within the random distribution array. 
+        position_of_highest_value: int = 0
 
-#         agents = self.init_agents(population, in_string_length)
-
-#         for generation in range(generations):
-
-#             print("Generation:" + str(generation))
-
-#             agents = self.fitness(agents, in_string)
-#             agents = self.selection(agents)
-#             agents = self.crossover(agents, population, in_string_length)
-#             agents = self.mutation(agents, in_string, in_string_length)
-
-#             if any(agent.fitness >= 90 for agent in agents):
-
-#                 print('Threshold met!')
-#                 exit(0)
-
-
-#     #
-#     #
-#     #
-#     #
-#     def init_agents(self, population: int, in_string_length: int):
-
-#         return [Agent(in_string_length) for _ in range(population)]
-
-
-#     #
-#     #
-#     #
-#     def fitness(self, agents: [Agent], in_string: str):
-
-#         for agent in agents:
-
-#             agent.fitness = fuzz.ratio(agent.string, in_string)
-
-#         return agents
-
-#     #
-#     #
-#     #
-#     #
-
-#     def selection(self, agents: [Agent]):
-
-#         agents = sorted(agents, key=lambda agent: agent.fitness, reverse = True)
-#         print('\n'.join(map(str, agents)))
+        # Stores the highest value within the random distribution.
+        highest_value: float = random_distribution[0]
         
-#         return agents[:int(0.2 * len(agents))]
+        # Iterate over all elements within the random distribution.
+        for position, value in enumerate(random_distribution):
 
+            # Checks whether the current value is higher than
+            # the previously stored one.
+            if value > highest_value:
 
-#     # 
-#     #
-#     #
-#     #
-#     def crossover(self, agents: [Agent], population: int, in_string_length: int):
+                # Writes the value of the former highest value to
+                # its former position since it has been replaced by
+                # zero in order to ensure that every value is only
+                # picked once.
+                random_distribution[position_of_highest_value] = highest_value
+                
+                # The current position is stored as the new position
+                # of the highest value.
+                position_of_highest_value: int = position
 
-#         offspring = []
+                # The current value is stored as the new highest value.
+                highest_value: float = value
 
-#         for _ in range(int((population - len(agents)) / 2)):
+                # Writes the value corresponding to the current position
+                # is set to be zero in order to ensure that every value
+                # gets only picked once.
+                random_distribution[position] = 0
 
-#             parent1 = random.choice(agents)
-#             parent2 = random.choice(agents)
+        # Returns the highest value within the array of random values, as 
+        # well as an updated version of the random distribution.
+        return position_of_highest_value, random_distribution
 
-#             child1 = Agent(in_string_length)
-#             child2 = Agent(in_string_length)
+    #
+    #
+    #
+    def select_row(self, column: [str]) -> int:
 
-#             split = random.randint(0, in_string_length)
+        potential_spots: [str] = []
 
-#             child1.string = parent1.string[0:split] + parent2.string[split:in_string_length]
-#             child2.string = parent2.string[0:split] + parent1.string[split:in_string_length]
+        # 
+        position_of_tile: int = 404
 
-#             offspring.append(child1)
-#             offspring.append(child2)
+        #
+        for position, tile in enumerate(column):
 
-#         agents.extend(offspring)
+            if tile == 'X' or tile == 'D' or tile == 'B':
+                
+                if (position_of_tile == 404):
+                    
+                    position_of_tile = position - 1
 
-#         return agents
+        return position_of_tile
 
-
-#     def mutation(self, agents: [Agent], in_string: str, in_string_length: int):
-
-#         for agent in agents:
-
-#             for index, param in enumerate(agent.string):
-
-#                 if random.uniform(0.0, 1.0) <= 0.3:
-
-#                     agent.sring = agent.string[0: index] + random.choice(string.ascii_letters) + agent.string[index + 1 : in_string_length]
-
-#         return agents
-
-
-
-# Genetic_Algorithm().execute('Deutschland', len('Deutschland'), 10, 100000)

@@ -108,6 +108,7 @@ class Build:
         pathlib.Path('evolution_cloud_function/models').mkdir(parents=True, exist_ok=True) 
         pathlib.Path('evolution_cloud_function/database').mkdir(parents=True, exist_ok=True) 
         pathlib.Path('evolution_cloud_function/helper').mkdir(parents=True, exist_ok=True) 
+        pathlib.Path('evolution_cloud_function/normalization').mkdir(parents=True, exist_ok=True) 
 
         shutil.copy('evolution/evolution.py', 'evolution_cloud_function/evolution/evolution.py')
         
@@ -118,6 +119,8 @@ class Build:
         shutil.copy('models/session.py', 'evolution_cloud_function/models/session.py')
         shutil.copy('models/performance.py', 'evolution_cloud_function/models/performance.py')
         
+        shutil.copy('normalization/normalization.py', 'evolution_cloud_function/normalization/normalization.py')
+
         shutil.copy('helper/helper.py', 'evolution_cloud_function/helper/helper.py')
         
         shutil.copy('evolution/main.py', 'evolution_cloud_function/main.py')

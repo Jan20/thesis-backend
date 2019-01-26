@@ -36,32 +36,13 @@ class TextFileReader:
       line = line.replace(']', 'D') # Pipe to Brick
       line = line.replace('<', 'D') # Pipe to Brick
       line = line.replace('>', 'D') # Pipe to Brick
-      line = line.replace('?', 'S') # Todo: Find better match
+      line = line.replace('?', 'P') # Todo: Find better match
       line = line.replace('E', 'C') # Todo: Find better match Gumba to Bumba
       line = line.replace('o', 'B') # Todo: Find better match Gumba to Bumba
       line = line.replace('b', 'B') # Should result in opponnent type 3
       
       string_representation.append(line)
       
-
-    # for character in f:
-
-    #   if (character == '\n'):
-
-    #     line.remove('\n')
-
-    #   if (key == '['):
-      
-    #     line('[', 'X')
-
-    #   if (key == ']'):
-      
-    #     line.replace(']', 'X')
-
-    # for x in f:
-    #   print(x)
-    #   lines.append(list(x))
-
     level_representation: [[str]] = []
 
     for line in string_representation:
@@ -71,6 +52,10 @@ class TextFileReader:
     for line in level_representation:
 
       print(line)
+
+    last_column: int = len(level_representation[0]) - 1
+
+    level_representation[14][last_column] = 'Z'
 
     return level_representation
 
