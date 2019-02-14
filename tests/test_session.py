@@ -23,7 +23,10 @@ class Test_Session(unittest.TestCase):
 
         result: Session = database.get_session(Samples.sample_user.user_key, Samples.sample_session.session_key)
 
+        timestamp = result.to_dict()['timestamp']
+        
         expected_result: Session = Samples.sample_session
+        expected_result.timestamp = timestamp
 
         #
         #

@@ -9,6 +9,7 @@ from normalization.normalization import Normalization
 from tests.set_up import set_up
 from tests.set_up import clean_up
 from tests.set_up import set_up_training_data
+from tests.samples import Samples
 
 class Test_Normalization(unittest.TestCase):
 
@@ -17,30 +18,27 @@ class Test_Normalization(unittest.TestCase):
     # every user stored at Firebase.
     def test_calculate_user_score(self):
 
+        # Sets up a test environment.
         set_up()
 
-        #
-        # 
-        #
-        result: int = Normalization().calculate_user_score('user_042')
+        # Calculates the user score for a sample user.
+        result: int = Normalization().calculate_user_score(Samples.sample_user.user_key)
 
-        #
-        # Expected Result
-        #
+        # Expects the user score to be 100.
         expected_result: int = 100
 
-        #
-        #
-        #
+        # Assets whether the result is equals the expected result.
         self.assertEqual(result, expected_result)
+
+        # Removes the test environment.
+        clean_up()
 
 
     def test_normalize_performance(self):
 
+        # Sets up a test environment.
         set_up()
 
-        #
-        # 
         #
         df = Normalization().normalize_performance()
 

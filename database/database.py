@@ -1,13 +1,13 @@
 import os, sys
-
 import firebase_admin
 from firebase_admin import credentials, firestore
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 cred = credentials.Certificate(os.path.join(SITE_ROOT, "../config", "test_account.json"))
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+server_timestamp = firestore.firestore.SERVER_TIMESTAMP
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from helper.helper import Helper
 from models.user import User
@@ -22,6 +22,10 @@ import random
 # to a firestore database.
 #
 class Database(object):
+
+    def generate_timestamp(self):
+
+        return server_timestamp
 
     ############################
     ## User Related Functions ##
@@ -111,7 +115,7 @@ class Database(object):
 
         # Creates a session which is based on the entries within the
         # previously updated dictionary.
-        session: Session = Session(session_dict['key'], session_dict['id'], session_dict['status'], performance)
+        session: Session = Session.from_dict(session_dict, performance)
 
         # Return the newly created session.
         return session
@@ -120,6 +124,7 @@ class Database(object):
     # Stores a new session to Firestore.
     #
     def store_session(self, user_key: str, session: Session) -> None:
+
 
         # Creates a reference to a new session document.
         ref = db.document(f'users/{user_key}/sessions/{session.session_key}')
@@ -162,10 +167,11 @@ class Database(object):
         # Defines a new performance object which values are
         # initialized with zeros.
         performance: Performance = Performance(0, 0, 0, 0, 0, 0, 0, difficulty)
+        
 
         # Creates a new session object based on the previously
         # defined key and id pair.
-        session: Session = Session(session_key, session_id, 'created', performance)
+        session: Session = Session(session_key, session_id, 'created', server_timestamp, performance)
 
         # Defines a new database reference pointing towards
         # the place at which the new session sould be stored.
@@ -432,10 +438,7 @@ class Database(object):
     #
     #
     #
-    def get_random_level(self, seed: str) -> Level:
-
-        # For test purposis only.
-        if (seed is 'level_01'): return self.get_level_prototype('level_01')
+    def get_random_level(self) -> Level:
 
         # String array intended to by filled
         # which session keys following a scheme

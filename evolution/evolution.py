@@ -5,7 +5,7 @@ import string
 import random
 import numpy as np
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from database.database import Database
 from models.level import Level
@@ -28,12 +28,12 @@ class Evolution(object):
     # given user.
     #
     def execute(self, user_key: str) -> str:
-
+    
         # Creates a new database object.
         database: Database = Database()
 
         # Selects a new level randomly.
-        random_level: Level = database.get_random_level('')
+        random_level: Level = database.get_random_level()
 
         # Difficulty score that should be reached.
         difficulty: float = Normalization().calculate_user_score(user_key)
@@ -64,16 +64,37 @@ class Evolution(object):
         # Goes as long as the level's desired difficulty is not reached.
         while target_score > 0:
 
+            random_number: float = random.randint(0, 2)
+            
+            opponent_type: str
+
+            if random_number == 0:
+                
+                opponent_type = 'C'
+            
+            if random_number == 1:
+                
+                opponent_type = 'J'
+
+            if random_number == 2:
+                
+                opponent_type = 'V'
+
             # Selects a column
             column, random_distribution = self.select_column(random_distribution)
 
-            row: int = self.select_row(matrix[:, column])
+            #
+            row: int = self.select_row(matrix[:, column], opponent_type)
 
+           
+
+            #
             if row == 404: 
 
                 continue
-
-            level.representation[row][column] = 'C'
+            
+        
+            level.representation[row][column] = opponent_type
 
             target_score -= 5
 
@@ -124,21 +145,102 @@ class Evolution(object):
     #
     #
     #
-    def select_row(self, column: [str]) -> int:
+    def select_row(self, column: [str], opponent_type: str) -> int:
 
-        potential_spots: [str] = []
+        # String array which 
+        potential_positions: [int]
 
         # 
         position_of_tile: int = 404
 
-        #
-        for position, tile in enumerate(column):
+        if opponent_type == 'C':
 
-            if tile == 'X' or tile == 'D' or tile == 'B':
-                
-                if (position_of_tile == 404):
-                    
-                    position_of_tile = position - 1
+            potential_positions = self.compute_potential_positions_for_opponent_type_1(column)
+
+        if opponent_type == 'J':
+
+            potential_positions = self.compute_potential_positions_for_opponent_type_2(column)
+
+        if opponent_type == 'V':
+
+            potential_positions = self.compute_potential_positions_for_opponent_type_3(column)
+
+
+        #
+        #
+        if len(potential_positions) > 0:
+
+            index: int = random.randint(0, len(potential_positions)-1)
+
+            position_of_tile = potential_positions[index]
 
         return position_of_tile
 
+    #
+    #
+    #
+    def compute_potential_positions_for_opponent_type_1(self, column: [str]) -> [int]:
+
+        #
+        potential_positions: [int] = []
+
+        # Iterates over all tiles in a column
+        for position, tile in enumerate(column):
+
+            # Checks wether the 
+            if tile == 'X' or tile == 'D' or tile == 'B':
+                
+                if (position > 0): 
+                    
+                    potential_positions.append(position - 1)
+
+        return potential_positions
+
+    #
+    #
+    #
+    def compute_potential_positions_for_opponent_type_2(self, column: [str]) -> [int]:
+
+        potential_positions: [int] = []
+
+        # Iterates over all tiles in a column
+        for position, tile in enumerate(column):
+
+            # Checks wether the 
+            if tile == 'X' or tile == 'D' or tile == 'B':
+                
+                potential_positions.append(position - 1)
+
+        return potential_positions
+
+
+    #
+    #
+    #
+    def compute_potential_positions_for_opponent_type_3(self, column: [str]) -> [int]:
+
+        potential_positions: [int] = []
+        isPotentialSpot: bool
+        
+        # Iterates over all tiles in a column
+        for position, _ in enumerate(column):
+
+            isPotentialSpot = True
+
+            for i in range(5):
+
+                if ((position + i) < (len(column) - 2)):
+
+                    if column[position + i] != '.':
+
+                        isPotentialSpot = False
+
+                else:
+
+                    isPotentialSpot = False
+            
+            if isPotentialSpot:
+                
+                potential_positions.append(position)
+
+        return potential_positions

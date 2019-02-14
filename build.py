@@ -14,7 +14,7 @@ class Build:
         
             with open('database/production.py', 'w') as fout:
 
-                fout.writelines(data[8:])
+                fout.writelines(data[9:])
 
 
         filenames: [str] = ['database/production_header.py', 'database/production.py']

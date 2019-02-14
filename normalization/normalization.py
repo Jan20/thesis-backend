@@ -37,7 +37,7 @@ class Normalization(object):
 
     def calculate_user_score(self, user_key) -> float:
 
-        weights = [
+        weights: [float] = [
 
             -0.25,
             -0.25,
@@ -49,7 +49,7 @@ class Normalization(object):
             0.25
 
         ]
-
+        
         df = self.normalize_performance()
         
         skill_scores = (

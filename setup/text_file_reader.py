@@ -48,10 +48,6 @@ class TextFileReader:
     for line in string_representation:
 
       level_representation.append(list(line))
-  
-    for line in level_representation:
-
-      print(line)
 
     last_column: int = len(level_representation[0]) - 1
 

@@ -11,6 +11,11 @@ from models.session import Session
 
 class Samples:
 
+    ###############
+    ## Variables ##
+    ###############
+    db: Database = Database()
+
     sample_user: User = User(user_key='user_042', user_id=42)
 
     sample_performance_dict = {
@@ -39,7 +44,7 @@ class Samples:
 
     )
 
-    sample_session: Session = Session('session_042', 42, 'finished', sample_performance)
+    sample_session: Session = Session('session_042', 42, 'finished', db.generate_timestamp(), sample_performance)
 
     sample_level: Level = Level.from_dict(
 
@@ -71,12 +76,12 @@ class Samples:
     sample_user_3: User = User('user_003', 3)
     sample_user_4: User = User('user_004', 4)
 
-    sample_session_1: Session = Session('session_001', 1, 'finished', Performance(0, 1, 0, 2, 1500, 48, 200, 80))
-    sample_session_2: Session = Session('session_002', 2, 'finished', Performance(0, 2, 0, 2, 3000, 130, 156, 100))
-    sample_session_3: Session = Session('session_003', 3, 'finished', Performance(2, 0, 0, 2, 4500, 38, 137, 110))
-    sample_session_4: Session = Session('session_001', 1, 'finished', Performance(1, 0, 0, 1, 4300, 48, 149, 90))
-    sample_session_5: Session = Session('session_002', 2, 'finished', Performance(0, 0, 0, 0, 4300, 243, 200, 180))
-    sample_session_6: Session = Session('session_001', 1, 'finished', Performance(0, 3, 1, 0, 2200, 38, 113, 65))
-    sample_session_7: Session = Session('session_002', 2, 'finished', Performance(0, 2, 2, 0, 1100, 52, 200, 79))
-    sample_session_8: Session = Session('session_001', 1, 'finished', Performance(2, 0, 0, 1, 500, 74, 31, 103))
+    sample_session_1: Session = Session('session_001', 1, 'finished', db.generate_timestamp(), Performance(0, 1, 0, 2, 1500, 48, 200, 80))
+    sample_session_2: Session = Session('session_002', 2, 'finished', db.generate_timestamp(), Performance(0, 2, 0, 2, 3000, 130, 156, 100))
+    sample_session_3: Session = Session('session_003', 3, 'finished', db.generate_timestamp(), Performance(2, 0, 0, 2, 4500, 38, 137, 110))
+    sample_session_4: Session = Session('session_001', 1, 'finished', db.generate_timestamp(), Performance(1, 0, 0, 1, 4300, 48, 149, 90))
+    sample_session_5: Session = Session('session_002', 2, 'finished', db.generate_timestamp(), Performance(0, 0, 0, 0, 4300, 243, 200, 180))
+    sample_session_6: Session = Session('session_001', 1, 'finished', db.generate_timestamp(), Performance(0, 3, 1, 0, 2200, 38, 113, 65))
+    sample_session_7: Session = Session('session_002', 2, 'finished', db.generate_timestamp(), Performance(0, 2, 2, 0, 1100, 52, 200, 79))
+    sample_session_8: Session = Session('session_001', 1, 'finished', db.generate_timestamp(), Performance(2, 0, 0, 1, 500, 74, 31, 103))
 

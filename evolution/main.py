@@ -13,6 +13,7 @@ def evolution_cloud_function(request):
     request_json = request.get_json(silent=True)
     request_args = request.args
 
+    # Declares a variable to store a user key.
     user_key: str
 
     if request_json and 'user_key' in request_json:
@@ -27,14 +28,13 @@ def evolution_cloud_function(request):
     
         user_key = 'User not found.'
 
-    #
-    #
-    #
+    # Executes the actual evolution process by creating
+    # an Evolution objects and calling the execute function
+    # the retrieved user key.
     session_key: str = Evolution().execute(user_key)
 
-    #
-    #
-    #
+    # Retruns a simple success message after the evolution
+    # process has been terminated.
     return f'Session {session_key} has been created.'
 
 

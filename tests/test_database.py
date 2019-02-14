@@ -1,5 +1,4 @@
-import os
-import sys
+import os, sys
 import unittest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -79,10 +78,12 @@ class Test_Database(unittest.TestCase):
 
         # Should retrieve an existing session from Firestore.
         result: Session = Database().get_session(Samples.sample_user.user_key, Samples.sample_session.session_key)
+        timestamp = result.to_dict()['timestamp']
 
-        # Defines the expected result.    
+        # Defines the expected result.            
         expected_result: Session = Samples.sample_session
-
+        expected_result.timestamp = timestamp
+        
         # Expects the result to be equal to a predefined sample session.
         self.assertEqual(result.to_dict(), expected_result.to_dict())
 
