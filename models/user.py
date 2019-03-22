@@ -3,7 +3,7 @@ class User(object):
     ##################
     ## Constructors ##
     ##################
-    def __init__(self, user_key, user_id):
+    def __init__(self, user_key: str, user_id: int):
       
         self.user_key: str = user_key
         self.user_id: int = user_id

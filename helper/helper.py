@@ -38,3 +38,4 @@ class Helper(object):
                     level.representation[i][j] = '.'
 
         return level
+    

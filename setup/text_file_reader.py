@@ -5,8 +5,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from database.database import Database
 
+#
+# Class intented 
+#
 class TextFileReader:
 
+  #
+  #
+  #
   def read_text_file(self, file_name: str) -> [[str]]:
 
     lines: [str] = []
@@ -26,6 +32,7 @@ class TextFileReader:
 
     lines = [lines[0]] + lines
 
+    #
     for line in lines:
       
       line = line.replace('-', '.') # Empty Space to Empty Space
@@ -56,5 +63,12 @@ class TextFileReader:
     return level_representation
 
 if __name__ == "__main__":
-    
-    TextFileReader().read_text_file('level_01.txt')
+  
+  TextFileReader().read_text_file('level_01.txt')
+  TextFileReader().read_text_file('level_02.txt')
+  TextFileReader().read_text_file('level_03.txt')
+  TextFileReader().read_text_file('level_04.txt')
+  TextFileReader().read_text_file('level_05.txt')
+  TextFileReader().read_text_file('level_06.txt')
+  TextFileReader().read_text_file('level_07.txt')
+  TextFileReader().read_text_file('level_08.txt')

@@ -141,7 +141,5 @@ if __name__ == "__main__":
 
     build: Build = Build()
 
-    # build.deploy_normalization_cloud_function()
-    # build.deploy_cluster_cloud_function()
     build.deploy_evolution_cloud_function()
 

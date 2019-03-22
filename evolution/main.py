@@ -10,6 +10,8 @@ def evolution_cloud_function(request):
     from evolution.evolution import Evolution
     from models.level import Level
 
+    from normalization.normalization import Normalization
+    
     request_json = request.get_json(silent=True)
     request_args = request.args
 
@@ -33,12 +35,7 @@ def evolution_cloud_function(request):
     # the retrieved user key.
     session_key: str = Evolution().execute(user_key)
 
+
     # Retruns a simple success message after the evolution
     # process has been terminated.
     return f'Session {session_key} has been created.'
-
-
-# if __name__ == "__main__":
-    
-#     evolution_cloud_function()
-

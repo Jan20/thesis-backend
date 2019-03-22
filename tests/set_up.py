@@ -54,6 +54,19 @@ def set_up_training_data():
     database.store_session(Samples.sample_user_3.user_key, Samples.sample_session_7)
     database.store_session(Samples.sample_user_4.user_key, Samples.sample_session_8)
 
+def set_up_two_sample_users():
+
+    database: Database = Database()
+
+    database.store_user(Samples.sample_user_1)
+    database.store_user(Samples.sample_user_2)
+
+    database.store_session(Samples.sample_user_1.user_key, Samples.sample_session_1)
+    database.store_session(Samples.sample_user_1.user_key, Samples.sample_session_2)
+    database.store_session(Samples.sample_user_1.user_key, Samples.sample_session_3)
+    database.store_session(Samples.sample_user_2.user_key, Samples.sample_session_4)
+    database.store_session(Samples.sample_user_2.user_key, Samples.sample_session_5)
+
 if __name__ == "__main__":
     
     clean_up()

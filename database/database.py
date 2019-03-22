@@ -15,6 +15,8 @@ from models.session import Session
 from models.performance import Performance
 from models.level import Level
 
+import pandas as pd
+
 import random
 
 #
@@ -54,13 +56,20 @@ class Database(object):
         return user_keys
 
     
-
+    #
+    # Returns a user object based on a given
+    # user key.
+    #
     def get_user(self, user_key: str) -> User:
 
-        ref = db.document('users/' + user_key)
+        # Defines a reference to a user document.
+        ref = db.document(f'users/{user_key}')
 
+        # Creates a user from the data stored at
+        # the user document.
         user: User = User.from_dict(ref.get().to_dict())
 
+        # Returns the previously created user.
         return user
 
     #
@@ -124,8 +133,7 @@ class Database(object):
     # Stores a new session to Firestore.
     #
     def store_session(self, user_key: str, session: Session) -> None:
-
-
+        
         # Creates a reference to a new session document.
         ref = db.document(f'users/{user_key}/sessions/{session.session_key}')
 
@@ -134,14 +142,21 @@ class Database(object):
 
         # Creates a reference to the peformance document of the newly created session.
         ref = db.document(f'users/{user_key}/sessions/{session.session_key}/data/performance')
+        
+        ref.set(session.performance.to_dict())
+
+        obj: dict = session.performance.to_dict()
+        obj['user_key'] = user_key
+        obj['session_key'] = session.session_key
 
         # Stores the performance attributes within in the previously referred document.
-        ref.set(session.performance.to_dict())
+        db.document(f'performances/{user_key}:{session.session_key}').set(obj)
+        
 
     #
     # Creates a new session for a given user.
     #
-    def generate_session(self, user_key: str, level: Level, difficulty: float) -> str:
+    def generate_session(self, user_key: str, level: Level, difficulty_score: float) -> str:
 
         # Variable intended to store the key
         # that will be created within the function.
@@ -166,7 +181,7 @@ class Database(object):
 
         # Defines a new performance object which values are
         # initialized with zeros.
-        performance: Performance = Performance(0, 0, 0, 0, 0, 0, 0, difficulty)
+        performance: Performance = Performance(0, 0, 0, 0, 0, 0, 0, difficulty_score)
         
 
         # Creates a new session object based on the previously
@@ -256,7 +271,36 @@ class Database(object):
         # Returns all session ids.
         return session_ids
 
+    def get_sessions(self) -> [Performance]:
 
+        performances: [Performance] = []
+
+        for doc in db.collection(f'performances').get():
+
+            d = doc.to_dict()
+
+            user_key = d['user_key']
+
+            performance: Performance = Performance(
+                d['defeated_by_gaps'],
+                d['defeated_by_opponent_type_1'],
+                d['defeated_by_opponent_type_2'],
+                d['defeated_by_opponent_type_3'],
+                d['score'],
+                d['time'],
+                d['progress'],
+                d['difficulty']
+            )
+
+            if user_key != 'user_001':
+
+                performances.append(performance)
+
+        return performances
+
+    #################
+    ## Performance ##
+    #################
     #
     # Returns the gameplay data of a specific
     # session for a given user.
@@ -274,6 +318,54 @@ class Database(object):
         # values stored in the dictionary.
         return Performance.from_dict(dictionary)
 
+    #
+    # Creates a dataframe storing all performance
+    # related attributes of all sessions played by 
+    # a given user.
+    #
+    def get_performances(self) -> pd.core.frame.DataFrame:
+
+        columns: [str] = [
+            
+            'gaps',
+            'op_1',
+            'op_2',
+            'op_3',
+            'score', 
+            'time',
+            'progress',
+            'difficulty'
+
+        ]
+
+        df = pd.DataFrame(columns=columns).astype(int)
+        
+        for doc in db.collection(f'performances').get():
+
+            value = doc.to_dict()
+            
+            df = df.append(pd.DataFrame([[
+            
+                value['defeated_by_gaps'],
+                value['defeated_by_opponent_type_1'],
+                value['defeated_by_opponent_type_2'],
+                value['defeated_by_opponent_type_3'],
+                value['score'],
+                value['time'],
+                value['progress'],
+                value['difficulty'],
+
+            ]], columns=columns, index=[f'{value["user_key"]}']))
+
+
+        # Stores all datapoints stored at the document
+        # to a dictionary.
+        # dictionary: dict = ref.get().to_dict()
+
+        # Returns a Performance object created from the
+        # values stored in the dictionary.
+        # return Performance.from_dict(dictionary)
+        return df
 
     #
     # Writes the users average performance
@@ -398,6 +490,14 @@ class Database(object):
         # Creates a new level prototype document at Firestore.
         db.document(f'level_prototypes/{level.key}').set(level.to_dict())
 
+    #
+    # Stores a level used in the tutorial
+    #
+    def store_tutorial(self, level: Level) -> None:
+
+        # Creates a new turorial at Firestore.
+        db.document(f'tutorials/{level.key}').set(level.to_dict())
+
 
     #
     # Stores an initial level to Firestore.
@@ -458,7 +558,9 @@ class Database(object):
         level_key: str = random.choice(level_keys)
 
         # Creates a new level object.
+        # TODO: Important 
         level: Level = self.get_level_prototype(level_key)
+        # level: Level = self.get_level_prototype('level_04')
 
         # Returns all session keys.
         return level
