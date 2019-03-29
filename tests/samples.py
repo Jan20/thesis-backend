@@ -16,7 +16,7 @@ class Samples:
     ###############
     db: Database = Database()
 
-    sample_user: User = User('user_042', 42, 'german')
+    # sample_user: User = User('user_042', 42, 'german')
 
     sample_performance_dict = {
 

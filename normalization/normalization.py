@@ -26,6 +26,7 @@ class Normalization(object):
         # If no data is recorded yet, the user will be put
         # by default in a middle difficulty class.
         if df.empty is True: return 'class_03'
+        if len(df) == 1: return 'class_03'
         
         # Calculates the average performance 
         df: pd.core.frame.DataFrame = self.choose_first_performance(df)
@@ -59,6 +60,13 @@ class Normalization(object):
         df = pd.DataFrame(columns=columns).astype(float)
 
         difficulty_class: str = 'class_03'
+        print(skill_scores)
+        print('quintiles')
+        print(quintile1)
+        print(quintile2)
+        print(quintile3)
+        print(quintile4)
+        print(quintile5)
 
         # Iterates over all elements of the skill_scores
         # dataframe.
@@ -169,6 +177,6 @@ if __name__ == "__main__":
     n = Normalization()
     
     input = db.get_performances()
-    input = n.choose_first_performance(input)
+    print(input)
 
-    df = n.calculate_quantiles('user_016')
+    df = n.calculate_quantiles('user_001')

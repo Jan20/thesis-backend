@@ -560,7 +560,6 @@ class Database(object):
         level_key: str = random.choice(level_keys)
 
         # Creates a new level object.
-        # TODO: Important 
         level: Level = self.get_level_prototype(level_key)
         # level: Level = self.get_level_prototype('level_04')
 

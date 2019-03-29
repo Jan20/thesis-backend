@@ -37,7 +37,7 @@ class Evolution(object):
 
         # Difficulty score that should be reached.
         difficulty_class: str = Normalization().calculate_quantiles(user_key)
-
+        print(difficulty_class)
 
         if difficulty_class == 'class_01': target_score = 50
         if difficulty_class == 'class_02': target_score = 75
@@ -64,38 +64,38 @@ class Evolution(object):
 
         if (difficulty_class == 'random_distribution'):
 
-            level = self.place_opponents_randomly(20, level)
+            level = self.place_opponents_randomly(16, level)
 
         if (difficulty_class == 'class_01'):
         
-            level = self.place_opponents_randomly(32, level)
-            level = self.place_opponents_next_to_each_other(0, level)
+            level = self.place_opponents_randomly(24, level)
+            level = self.place_opponents_next_to_each_other(1, level)
             level = self.place_opponents_close_to_choke_points(1, level)
         
         if (difficulty_class == 'class_02'):
     
-            level = self.place_opponents_randomly(16, level)
-            level = self.place_opponents_next_to_each_other(8, level)
+            level = self.place_opponents_randomly(12, level)
+            level = self.place_opponents_next_to_each_other(6, level)
             level = self.place_opponents_close_to_choke_points(4, level)
 
         if (difficulty_class == 'class_03'):
         
-            level = self.place_opponents_randomly(8, level)
-            level = self.place_opponents_next_to_each_other(12, level)
+            level = self.place_opponents_randomly(5, level)
+            level = self.place_opponents_next_to_each_other(9, level)
             level = self.place_opponents_close_to_choke_points(8, level)
 
 
         if (difficulty_class == 'class_04'):
         
-            level = self.place_opponents_randomly(4, level)
-            level = self.place_opponents_next_to_each_other(14, level)
-            level = self.place_opponents_close_to_choke_points(16, level)
+            level = self.place_opponents_randomly(3, level)
+            level = self.place_opponents_next_to_each_other(11, level)
+            level = self.place_opponents_close_to_choke_points(14, level)
 
         if (difficulty_class == 'class_05'):
         
-            level = self.place_opponents_randomly(2, level)
-            level = self.place_opponents_next_to_each_other(16, level)
-            level = self.place_opponents_close_to_choke_points(32, level)
+            level = self.place_opponents_randomly(1, level)
+            level = self.place_opponents_next_to_each_other(12, level)
+            level = self.place_opponents_close_to_choke_points(24, level)
 
         return level
 
@@ -161,7 +161,7 @@ class Evolution(object):
             # Checks whether the current location
             # can be regared as to be valid.
             is_valid: bool = self.check_for_candidate(row, column, level, opponent_type)
-
+            
             # If all previously defined conditions are met,
             # the current row is added to the potential_positions
             # array.
@@ -169,7 +169,7 @@ class Evolution(object):
             if is_valid and opponent_type != 'F': potential_positions.append(row - 1)
         
         # Checks wether at least one potential position has been identified.
-        if len(potential_positions) > 0: 
+        if len(potential_positions) > 0:    
 
             # Selects a random location from the array of potential positions.
             data = [random.choice(potential_positions), column, opponent_type]
@@ -430,8 +430,8 @@ class Evolution(object):
 
         return (
             
-            (level[row - 1, column - 1] == '.' and self.check_tile(level[row - 1, column - 1])) or 
-            (level[row - 1, column - 1] == '.' and self.check_tile(level[row - 1, column - 1]))
+            level[row - 1, column - 1] == '.' and self.check_tile(level[row, column - 1]) and
+            level[row - 1, column + 1] == '.' and self.check_tile(level[row, column + 1])
         
         )
 
@@ -494,3 +494,8 @@ class Evolution(object):
             level[row - 5, column] == 'F'
         
         )
+
+if __name__ == "__main__":
+
+    print(Evolution().execute('user_001'))
+
