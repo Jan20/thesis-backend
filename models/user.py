@@ -3,10 +3,11 @@ class User(object):
     ##################
     ## Constructors ##
     ##################
-    def __init__(self, user_key: str, user_id: int):
+    def __init__(self, user_key: str, user_id: int, language: str):
       
         self.user_key: str = user_key
         self.user_id: int = user_id
+        self.language: str = language
       
     ###############
     ## Functions ##
@@ -14,22 +15,20 @@ class User(object):
     @staticmethod
     def from_dict(source: dict):
         
-        user = User(
+        return User(
             
             source['user_key'],
-            source['user_id']
+            source['user_id'],
+            source['language']
         
         )
 
-        return user
-
     def to_dict(self) -> dict:
 
-        dictionary: dict = {
+        return {
 
             'user_key': self.user_key,
-            'user_id': self.user_id
+            'user_id': self.user_id,
+            'language': self.language
             
         }
-
-        return dictionary

@@ -2,7 +2,7 @@ import os, sys
 import firebase_admin
 from firebase_admin import credentials, firestore
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-cred = credentials.Certificate(os.path.join(SITE_ROOT, "../config", "test_account.json"))
+cred = credentials.Certificate(os.path.join(SITE_ROOT, "../config", "service_account.json"))
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 server_timestamp = firestore.firestore.SERVER_TIMESTAMP
@@ -325,6 +325,8 @@ class Database(object):
     #
     def get_performances(self) -> pd.core.frame.DataFrame:
 
+        # Defines the columns of the dataframe that is
+        # going to be returned by the function.
         columns: [str] = [
             
             'gaps',
@@ -338,12 +340,18 @@ class Database(object):
 
         ]
 
+        # Defines an empty dataframe intended to store
+        # the performances achieved by all users across
+        # all their sessions.
         df = pd.DataFrame(columns=columns).astype(int)
         
+        # Iterates over all performances stored at Firestore.
         for doc in db.collection(f'performances').get():
 
+            # Converts the response from Firestore into a dict.
             value = doc.to_dict()
             
+            # Adds a new row to the dataframe defined above.
             df = df.append(pd.DataFrame([[
             
                 value['defeated_by_gaps'],
@@ -358,13 +366,7 @@ class Database(object):
             ]], columns=columns, index=[f'{value["user_key"]}']))
 
 
-        # Stores all datapoints stored at the document
-        # to a dictionary.
-        # dictionary: dict = ref.get().to_dict()
-
-        # Returns a Performance object created from the
-        # values stored in the dictionary.
-        # return Performance.from_dict(dictionary)
+        # Returns the filled dataframe.
         return df
 
     #

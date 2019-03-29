@@ -16,7 +16,7 @@ class Samples:
     ###############
     db: Database = Database()
 
-    sample_user: User = User(user_key='user_042', user_id=42)
+    sample_user: User = User('user_042', 42, 'german')
 
     sample_performance_dict = {
 
@@ -71,10 +71,10 @@ class Samples:
 
     )
 
-    sample_user_1: User = User('user_001', 1)
-    sample_user_2: User = User('user_002', 2)
-    sample_user_3: User = User('user_003', 3)
-    sample_user_4: User = User('user_004', 4)
+    sample_user_1: User = User('user_001', 1, 'english')
+    sample_user_2: User = User('user_002', 2, 'english')
+    sample_user_3: User = User('user_003', 3, 'english')
+    sample_user_4: User = User('user_004', 4, 'english')
 
     sample_session_1: Session = Session('session_001', 1, 'finished', db.generate_timestamp(), Performance(0, 1, 0, 2, 1500, 48, 200, 80))
     sample_session_2: Session = Session('session_002', 2, 'finished', db.generate_timestamp(), Performance(0, 2, 0, 2, 3000, 130, 156, 100))

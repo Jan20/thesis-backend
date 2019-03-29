@@ -33,11 +33,11 @@ class Evolution(object):
         # Selects a new level randomly.
         random_level: Level = database.get_random_level()
 
+        target_score: int = 100
+
         # Difficulty score that should be reached.
         difficulty_class: str = Normalization().calculate_quantiles(user_key)
 
-        difficulty_class = 'class_01'
-        target_score: int = 100
 
         if difficulty_class == 'class_01': target_score = 50
         if difficulty_class == 'class_02': target_score = 75
@@ -48,7 +48,7 @@ class Evolution(object):
         if difficulty_class == 'random_distribution': target_score = 100
 
         # evolves the previously selected level.
-        evolved_level: Level = self.evolve(difficulty_class, target_score, random_level)
+        evolved_level: Level = self.evolve(difficulty_class, random_level)
 
         # Generates a new session and connects the evolved
         # level to that session.
@@ -57,13 +57,10 @@ class Evolution(object):
         # Returns the key of the previously generated session.
         return session_key
 
-
     #
     # 
     #
-    def evolve(self, difficulty_class: str, target_score: int, level: Level) -> Level:
-
-        level: Level
+    def evolve(self, difficulty_class: str, level: Level) -> Level:
 
         if (difficulty_class == 'random_distribution'):
 
@@ -71,34 +68,34 @@ class Evolution(object):
 
         if (difficulty_class == 'class_01'):
         
-            level = self.place_opponents_randomly(5, level)
-            level = self.place_opponents_next_to_each_other(5, level)
-            level = self.place_opponents_close_to_choke_points(5, level)
+            level = self.place_opponents_randomly(32, level)
+            level = self.place_opponents_next_to_each_other(0, level)
+            level = self.place_opponents_close_to_choke_points(1, level)
         
         if (difficulty_class == 'class_02'):
     
-            level = self.place_opponents_randomly(10, level)
-            level = self.place_opponents_next_to_each_other(10, level)
-            level = self.place_opponents_close_to_choke_points(10, level)
+            level = self.place_opponents_randomly(16, level)
+            level = self.place_opponents_next_to_each_other(8, level)
+            level = self.place_opponents_close_to_choke_points(4, level)
 
         if (difficulty_class == 'class_03'):
         
-            level = self.place_opponents_randomly(15, level)
-            level = self.place_opponents_next_to_each_other(20, level)
-            level = self.place_opponents_close_to_choke_points(20, level)
+            level = self.place_opponents_randomly(8, level)
+            level = self.place_opponents_next_to_each_other(12, level)
+            level = self.place_opponents_close_to_choke_points(8, level)
 
 
         if (difficulty_class == 'class_04'):
         
-            level = self.place_opponents_randomly(20, level)
-            level = self.place_opponents_next_to_each_other(25, level)
-            level = self.place_opponents_close_to_choke_points(25, level)
+            level = self.place_opponents_randomly(4, level)
+            level = self.place_opponents_next_to_each_other(14, level)
+            level = self.place_opponents_close_to_choke_points(16, level)
 
         if (difficulty_class == 'class_05'):
         
-            level = self.place_opponents_randomly(10, level)
-            level = self.place_opponents_next_to_each_other(20, level)
-            level = self.place_opponents_close_to_choke_points(30, level)
+            level = self.place_opponents_randomly(2, level)
+            level = self.place_opponents_next_to_each_other(16, level)
+            level = self.place_opponents_close_to_choke_points(32, level)
 
         return level
 
@@ -353,10 +350,13 @@ class Evolution(object):
         if self.check_for_general_choke_point(row, column, level): return True
 
         return False
-        
+    
+    #
+    #
+    #
     def check_for_candidate(self, row: int, column: int, level, opponent_type: str) -> bool:
 
-        return True if (
+        return (
             
             row > 0 
             
@@ -381,19 +381,15 @@ class Evolution(object):
             # occupied by a previously placed opponent.
             self.check_for_opponents(row, column, level)
 
-        ) else False
+        )
 
     def check_for_bottom_row_choke_point(self, row: int, column: int, level) -> bool:
 
-        return True if (
+        if row != 14: return False
 
-            row == 14 and
+        return level[row, column - 1] == '.' or level[row, column + 1] == '.'
 
-            (level[row, column - 1] == '.' or 
 
-            level[row, column + 1] == '.')
-
-        ) else False
 
     def check_for_general_choke_point(self, row: int, column: int, level) -> bool:
 
@@ -409,73 +405,58 @@ class Evolution(object):
 
         if second_one_found: return False
 
-        return True if (
+        return (
             
             (level[row + 0, column - 1] == '.' and level[row + 1, column - 1] == '.') or
             (level[row + 0, column + 1] == '.' and level[row + 1, column + 1] == '.')
         
-        ) else False
+        )
 
 
     def check_position(self, row: int, column: int, level: [[str]], opponent_type: str) -> bool:
-        
+
         if opponent_type == 'C': is_valid = self.check_positions_for_opponent_type_1(row, column, level)
         if opponent_type == 'J': is_valid = self.check_positions_for_opponent_type_2(row, column, level)
         if opponent_type == 'F': is_valid = self.check_positions_for_opponent_type_3(row, column, level)
-
-        return True if is_valid else False 
+        
+        return is_valid
 
     #
     #
     #
     def check_positions_for_opponent_type_1(self, row: int, column: int, level: [[str]]) -> bool:
 
-        if column + 2 > len(level[0]) - 1: return False
-        if row + 1 > 14: return False
+        if column + 1 > (len(level[0]) - 2): return False
 
-        return True if (
-
-            (
-
-            level[row - 1, column - 2] == '.' and 
-            level[row - 1, column - 1] == '.' and 
-            level[row,     column - 1] != '.' 
-
-            )
-
-            or
-
-            (
+        return (
             
-            level[row + 1, column + 2] == '.' and 
-            level[row + 1, column + 1] == '.' and 
-            level[row,     column + 1] != '.' 
+            (level[row - 1, column - 1] == '.' and self.check_tile(level[row - 1, column - 1])) or 
+            (level[row - 1, column - 1] == '.' and self.check_tile(level[row - 1, column - 1]))
+        
+        )
 
-            )
-
-        ) else False
 
     #
     #
     #
     def check_positions_for_opponent_type_2(self, row: int, column: int, level: [[str]]) -> bool:
 
-        return True if (
-
+        return (
+            
             level[row - 4, column] == '.'  and 
             level[row - 3, column] == '.'  and 
             level[row - 2, column] == '.'  and 
             level[row - 1, column] == '.'  and
-            self.check_tile(level[row, column])
-
-        ) else False
+            self.check_tile(level[row, column]
+        
+        ))
 
     #
     #
     #
     def check_positions_for_opponent_type_3(self, row: int, column: int, level: [[str]]) -> bool:
 
-        return True if (
+        return (
 
             level[row - 6, column] == '.'  and 
             level[row - 5, column] == '.'  and 
@@ -484,7 +465,7 @@ class Evolution(object):
             level[row - 2, column] == '.'  and 
             level[row - 1, column] == '.'
 
-        ) else False
+        )
 
 
     def check_tile(self, tile: str) -> bool:
@@ -493,28 +474,23 @@ class Evolution(object):
 
     def check_for_opponents(self, row: int, column: int, level: [[str]]) -> bool:
 
-        return True if (
+        return (
                 
-                level[row - 0, column] == 'C' or 
-                level[row - 1, column] == 'C'
+            level[row - 0, column] == 'C' or 
+            level[row - 1, column] == 'C'
+        
+            or 
             
-                or 
-                
-                level[row - 0, column] == 'J' or 
-                level[row - 1, column] == 'J'
-                
-                or 
-                
-                level[row - 0, column] == 'F' or 
-                level[row - 1, column] == 'F' or
-                level[row - 2, column] == 'F' or
-                level[row - 3, column] == 'F' or
-                level[row - 4, column] == 'F' or
-                level[row - 5, column] == 'F'
+            level[row - 0, column] == 'J' or 
+            level[row - 1, column] == 'J'
             
-        ) else False
-
-
-if __name__ == "__main__":
-    
-    Evolution().execute('user_001')
+            or 
+            
+            level[row - 0, column] == 'F' or 
+            level[row - 1, column] == 'F' or
+            level[row - 2, column] == 'F' or
+            level[row - 3, column] == 'F' or
+            level[row - 4, column] == 'F' or
+            level[row - 5, column] == 'F'
+        
+        )
